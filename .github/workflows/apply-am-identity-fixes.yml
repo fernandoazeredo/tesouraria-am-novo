@@ -1,0 +1,128 @@
+name: Aplicar correcoes de identidade e textos - AM NOVO
+
+on:
+  push:
+    branches:
+      - dev-am-2026-09-08
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.event.head_commit.message == 'Prepara correcoes aprovadas de identidade e textos do AM NOVO'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+        with:
+          ref: dev-am-2026-09-08
+
+      - name: Aplicar correcoes aprovadas
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          revenue = 'O departamento de origem registra os recebimentos, informa a conta em que o valor foi recebido e faz o upload no sistema de toda a documentação comprobatória. As informações e os documentos anexados seguem eletronicamente para a Tesouraria, evitando o envio e a circulação de documentos em papel.'
+          expense = 'A Tesouraria registra e processa as despesas, faz o upload no sistema de toda a documentação comprobatória, informa a conta em que o pagamento será realizado e encaminha o lançamento para aprovação. Após a autorização, efetua e registra o pagamento. Os documentos devem permanecer anexados no sistema, evitando o envio e a circulação de documentos em papel.'
+
+          replacements = {
+              'FLÁVIO MARQUES ADVOGADOS ASSOCIADOS': 'TESOURARIA AM NOVO',
+              'FLAVIO MARQUES ADVOGADOS ASSOCIADOS': 'TESOURARIA AM NOVO',
+              'MARQUES & MÜLLER ADVOGADOS ASSOCIADOS': 'TESOURARIA AM NOVO',
+              'MARQUES & MULLER ADVOGADOS ASSOCIADOS': 'TESOURARIA AM NOVO',
+              'Marques & Müller Advogados Associados': 'TESOURARIA AM NOVO',
+              'Marques & Muller Advogados Associados': 'TESOURARIA AM NOVO',
+              'Flávio Marques Advogados Associados': 'AM',
+              '/logo-fm.svg': '/logo-am.svg',
+              '/logo-mm.svg': '/logo-am.svg',
+              '/logo-mm.png': '/logo-am.svg',
+              '04.344.462/0001-87': '',
+              'Rua México, 21 / 1102 – Centro – Rio de Janeiro – RJ': '',
+              'O departamento de origem registra os recebimentos, informa a conta em que o valor foi recebido e anexa os documentos que seguirão para a Tesouraria.': revenue,
+              'O departamento de origem preenche o demonstrativo, informa a conta em que o valor foi recebido e anexa os documentos que seguirão para a Tesouraria.': revenue,
+              'Criação, documentos, movimentação financeira, correção e acompanhamento do demonstrativo.': expense,
+          }
+
+          candidates = [Path('index.html')]
+          candidates += [p for p in Path('src').rglob('*') if p.is_file() and p.suffix in {'.ts','.tsx','.css'}]
+
+          changed = []
+          for path in candidates:
+              text = path.read_text(encoding='utf-8')
+              original = text
+              for old, new in replacements.items():
+                  text = text.replace(old, new)
+              if text != original:
+                  path.write_text(text, encoding='utf-8')
+                  changed.append(str(path))
+
+          # index.html: identidade técnica provisória AM
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace('Controle de Despesas e Receitas - TESOURARIA AM NOVO', 'TESOURARIA AM NOVO - Controle de Despesas e Receitas')
+          text = text.replace('<title>Controle de Despesas e Receitas | TESOURARIA AM NOVO</title>', '<title>TESOURARIA AM NOVO | Controle de Despesas e Receitas</title>')
+          if '<meta name="description" content="TESOURARIA AM NOVO - Controle de Despesas e Receitas" />' not in text:
+              import re
+              text = re.sub(r'<meta name="description" content="[^"]*" />', '<meta name="description" content="TESOURARIA AM NOVO - Controle de Despesas e Receitas" />', text)
+          p.write_text(text, encoding='utf-8')
+
+          # Configuração institucional provisória: razão social provisória e demais campos em branco.
+          for rel in ['src/hooks/useInstitutionalSettings.ts', 'src/components/InstitutionalSettingsEditor.tsx', 'src/App.tsx']:
+              p = Path(rel)
+              text = p.read_text(encoding='utf-8')
+              text = text.replace("razaoSocial: 'TESOURARIA AM NOVO',\n  cnpj: '',\n  endereco: '',", "razaoSocial: 'TESOURARIA AM NOVO',\n  cnpj: '',\n  endereco: '',")
+              p.write_text(text, encoding='utf-8')
+
+          # Permitir manter CNPJ e endereço em branco enquanto a identidade institucional é provisória.
+          p = Path('src/components/InstitutionalSettingsEditor.tsx')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace("if (!form.razaoSocial.trim() || !form.cnpj.trim() || !form.endereco.trim()) {\n      setMessage('Preencha todos os campos.')", "if (!form.razaoSocial.trim()) {\n      setMessage('Informe a Razão Social.')")
+          p.write_text(text, encoding='utf-8')
+
+          # Garantir que o texto de Despesas também seja aplicado pela camada de sincronização visual.
+          p = Path('src/components/NavigationCopyEnhancer.tsx')
+          text = p.read_text(encoding='utf-8')
+          if "pathname === '/despesas'" not in text:
+              marker = "  if (pathname === '/alvaras') {"
+              block = f"""  if (pathname === '/despesas') {{\n    const heading = document.querySelector<HTMLElement>('.main-content .page-heading')\n    const description = heading?.querySelector<HTMLElement>('p')\n    const desiredDescription = {expense!r}\n    if (description && description.textContent !== desiredDescription) description.textContent = desiredDescription\n  }}\n\n"""
+              text = text.replace(marker, block + marker)
+          p.write_text(text, encoding='utf-8')
+
+          # Validações finais das correções aprovadas.
+          checks = {
+              'index.html': ['TESOURARIA AM NOVO | Controle de Despesas e Receitas', '/logo-am.svg'],
+              'src/components/NavigationCopyEnhancer.tsx': [revenue, expense],
+              'src/hooks/useInstitutionalSettings.ts': ["razaoSocial: 'TESOURARIA AM NOVO'", "cnpj: ''", "endereco: ''"],
+              'src/App.tsx': ["razaoSocial: 'TESOURARIA AM NOVO'", "cnpj: ''", "endereco: ''", '/logo-am.svg'],
+          }
+          for rel, needles in checks.items():
+              data = Path(rel).read_text(encoding='utf-8')
+              for needle in needles:
+                  if needle not in data:
+                      raise SystemExit(f'Falha de validação em {rel}: {needle}')
+
+          forbidden = ['FLÁVIO MARQUES ADVOGADOS ASSOCIADOS','FLAVIO MARQUES ADVOGADOS ASSOCIADOS','MARQUES & MÜLLER ADVOGADOS ASSOCIADOS','MARQUES & MULLER ADVOGADOS ASSOCIADOS']
+          residual = []
+          for path in candidates:
+              data = path.read_text(encoding='utf-8')
+              for needle in forbidden:
+                  if needle in data:
+                      residual.append(f'{path}: {needle}')
+          if residual:
+              raise SystemExit('Referências institucionais antigas ainda ativas:\n' + '\n'.join(residual))
+
+          print('Correções aplicadas e validadas.')
+          PY
+
+      - name: Remover workflow temporario e salvar alteracoes
+        shell: bash
+        run: |
+          rm -f .github/workflows/apply-am-identity-fixes.yml
+          git config user.name "Fernando Azeredo - automacao"
+          git config user.email "132702186+fernandoazeredo@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 1
+          git commit -m "[deploy-firebase] Corrige identidade e textos do AM NOVO"
+          git push origin HEAD:dev-am-2026-09-08
