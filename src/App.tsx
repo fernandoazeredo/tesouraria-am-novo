@@ -55,9 +55,9 @@ import './accounts-fernando.css'
 import './storage-documents.css'
 
 const companyData = {
-  razaoSocial: 'FLÁVIO MARQUES ADVOGADOS ASSOCIADOS',
-  cnpj: '04.344.462/0001-87',
-  endereco: 'Rua México, 21 / 1102 – Centro – Rio de Janeiro – RJ',
+  razaoSocial: 'TESOURARIA AM NOVO',
+  cnpj: '',
+  endereco: '',
 }
 
 type AccessRole = 'master' | 'diretor' | 'gerente' | 'tesouraria' | 'operador'
@@ -154,7 +154,7 @@ function LoginScreen() {
     <div className="auth-page login-light-only">
       <div className="auth-layout login-shell">
         <section className="auth-brand-panel">
-          <img src="/logo-fm.svg" alt="Flávio Marques Advogados Associados" />
+          <img src="/logo-am.svg" alt="AM" />
           <div className="auth-brand-copy">
             <h1>Controle de<br />Despesas e Receitas</h1>
             <div className="auth-brand-accent" />
@@ -221,12 +221,12 @@ function AppShell() {
       <SocietaryTransferSync />
       <header className="mobile-app-header">
         <button type="button" className="mobile-menu-toggle" aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'} aria-expanded={mobileMenuOpen} aria-controls="app-sidebar" onClick={() => setMobileMenuOpen((open) => !open)}>{mobileMenuOpen ? <X size={23} /> : <Menu size={23} />}</button>
-        <div className="mobile-header-brand"><img src="/logo-fm.svg" alt="Flávio Marques Advogados Associados" /><span>Controle de Despesas e Receitas</span></div>
+        <div className="mobile-header-brand"><img src="/logo-am.svg" alt="AM" /><span>Controle de Despesas e Receitas</span></div>
       </header>
       <button type="button" className={`mobile-menu-backdrop${mobileMenuOpen ? ' is-open' : ''}`} aria-label="Fechar menu" onClick={closeMobileMenu} />
       <aside id="app-sidebar" className={`sidebar${mobileMenuOpen ? ' is-open' : ''}`}>
         <div className="mobile-sidebar-head"><strong>Menu do sistema</strong><button type="button" className="mobile-sidebar-close" aria-label="Fechar menu" onClick={closeMobileMenu}><X size={21} /></button></div>
-        <div className="brand"><div className="brand-logo-only"><img src="/logo-fm.svg" alt="Flávio Marques Advogados Associados" /></div><div className="app-name">Controle de Despesas e Receitas</div></div>
+        <div className="brand"><div className="brand-logo-only"><img src="/logo-am.svg" alt="AM" /></div><div className="app-name">Controle de Despesas e Receitas</div></div>
         <nav>{visibleMenu.map(({ to, label, icon: Icon, tone }) => <NavLink key={to} to={to} end={to === '/'} onClick={closeMobileMenu} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}${tone ? ` ${tone}-nav` : ''}`}><Icon size={18} /><span>{label}</span></NavLink>)}</nav>
         <div className="sidebar-help"><NavLink to="/dicas" onClick={closeMobileMenu} className="tips-button"><Lightbulb size={18} /> DICAS</NavLink><NavLink to="/como-usar" onClick={closeMobileMenu} className="howto-link"><Scale size={18} /> Como Usar</NavLink></div>
         <div className="sidebar-user"><div><strong>{profile?.displayName || 'Usuário'}</strong><span>{profile?.email}</span></div><button type="button" onClick={() => { closeMobileMenu(); void logout() }} title="Sair"><LogOut size={17} /></button></div>

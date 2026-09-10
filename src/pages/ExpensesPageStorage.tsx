@@ -101,7 +101,7 @@ async function writeAudit(profile: ReturnType<typeof useAuth>['profile'], action
 }
 
 function Header({ onNew }: { onNew: () => void }) {
-  return <div className="page-heading"><div><span className="eyebrow">Tesouraria</span><h1>Despesas</h1><p>Criação, documentos, movimentação financeira, correção e acompanhamento do demonstrativo.</p></div><div className="quick-actions"><button className="outline-expense-button" type="button"><FileText size={18} /> Extrato de Despesas</button><button className="expense-button" type="button" onClick={onNew}><Plus size={18} /> Nova Despesa</button></div></div>
+  return <div className="page-heading"><div><span className="eyebrow">Tesouraria</span><h1>Despesas</h1><p>A Tesouraria registra e processa as despesas, faz o upload no sistema de toda a documentação comprobatória, informa a conta em que o pagamento será realizado e encaminha o lançamento para aprovação. Após a autorização, efetua e registra o pagamento. Os documentos devem permanecer anexados no sistema, evitando o envio e a circulação de documentos em papel.</p></div><div className="quick-actions"><button className="outline-expense-button" type="button"><FileText size={18} /> Extrato de Despesas</button><button className="expense-button" type="button" onClick={onNew}><Plus size={18} /> Nova Despesa</button></div></div>
 }
 
 function ExpenseModal({ record, onClose }: { record?: AnyRecord | null; onClose: () => void }) {
@@ -306,7 +306,7 @@ function ExpenseModal({ record, onClose }: { record?: AnyRecord | null; onClose:
 
   return <div className="modal-backdrop"><section className="modal-sheet legacy-sheet expense-sheet" role="dialog" aria-modal="true">
     <div className="modal-toolbar"><div><span className="eyebrow expense-text">Tesouraria</span><h2>{modalTitle}</h2></div><button className="icon-button" type="button" onClick={() => void closeWithoutSave()}><X size={20} /></button></div>
-    <div className="legacy-title-block"><strong>FLÁVIO MARQUES ADVOGADOS ASSOCIADOS</strong><span>DEMONSTRATIVO DE DESPESAS</span></div>
+    <div className="legacy-title-block"><strong>TESOURARIA AM NOVO</strong><span>DEMONSTRATIVO DE DESPESAS</span></div>
     {isReturned && <div className="return-note"><div><strong>Devolvido para correção</strong><span>{record?.approvalNote || 'A Diretoria solicitou correção deste demonstrativo.'}</span></div></div>}
 
     <div className="form-grid compact-grid"><label><span>Unidade</span><select value={unidade} onChange={(e) => setUnidade(e.target.value as 'RJ' | 'SP')}><option>RJ</option><option>SP</option></select></label><label className="span-2"><span>Nome / Responsável</span><input value={nome} onChange={(e) => setNome(e.target.value)} /></label><label><span>Competência</span><input type="month" value={competencia} onChange={(e) => setCompetencia(e.target.value)} /></label><label className="span-2"><span>Fornecedor / Favorecido</span><input value={fornecedor} onChange={(e) => setFornecedor(e.target.value)} /></label><label><span>CPF / CNPJ</span><input value={documento} onChange={(e) => setDocumento(e.target.value)} /></label></div>

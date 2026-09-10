@@ -10,9 +10,9 @@ export function InstitutionalDisplaySync() {
       for (const block of blocks) {
         const current = block.textContent?.trim() ?? ''
         if (
-          current.includes('FLÁVIO MARQUES ADVOGADOS ASSOCIADOS') ||
-          current.includes('FLAVIO MARQUES ADVOGADOS ASSOCIADOS') ||
-          current.includes('MARQUES & MÜLLER ADVOGADOS ASSOCIADOS')
+          current.includes('TESOURARIA AM NOVO') ||
+          current.includes('TESOURARIA AM NOVO') ||
+          current.includes('TESOURARIA AM NOVO')
         ) {
           block.textContent = institutional.razaoSocial
         }

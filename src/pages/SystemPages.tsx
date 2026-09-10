@@ -253,7 +253,7 @@ function ExpenseModal({ open, onClose }: { open: boolean; onClose: () => void })
         </div>
 
         <div className="legacy-title-block">
-          <strong>FLÁVIO MARQUES ADVOGADOS ASSOCIADOS</strong>
+          <strong>TESOURARIA AM NOVO</strong>
           <span>DEMONSTRATIVO DE DESPESAS</span>
         </div>
 
@@ -408,7 +408,7 @@ function ReceivableModal({ open, onClose }: { open: boolean; onClose: () => void
           <div><span className="eyebrow revenue-text">Recebimento de Alvarás</span><h2>Demonstrativo de Recebimento de Honorários</h2></div>
           <button className="icon-button" type="button" onClick={onClose} aria-label="Fechar"><X size={20} /></button>
         </div>
-        <div className="legacy-title-block revenue-title"><strong>FLÁVIO MARQUES ADVOGADOS ASSOCIADOS</strong><span>DEMONSTRATIVO DE RECEBIMENTO DE HONORÁRIOS</span></div>
+        <div className="legacy-title-block revenue-title"><strong>TESOURARIA AM NOVO</strong><span>DEMONSTRATIVO DE RECEBIMENTO DE HONORÁRIOS</span></div>
 
         <h3 className="form-section-title">Dados do Processo</h3>
         <div className="form-grid compact-grid">

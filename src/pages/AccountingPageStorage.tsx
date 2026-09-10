@@ -93,7 +93,7 @@ export function AccountingPageStorage() {
 
   function workbookSheets(): XlsxSheet[] {
     const summaryRows = [
-      ['FLÁVIO MARQUES ADVOGADOS ASSOCIADOS'],
+      ['TESOURARIA AM NOVO'],
       ['Movimento mensal para Contabilidade'],
       ['Competência', competence], ['Unidade', unit], ['Movimento', movement],
       ['Despesas aptas', expenseCount], ['Total despesas', expenseTotal], ['Receitas aptas', receivableCount], ['Total receitas', revenueTotal],

@@ -7,9 +7,9 @@ import { useAuth } from '../auth/AuthContext'
 import { db } from '../lib/firebase'
 
 const DEFAULTS = {
-  razaoSocial: 'MARQUES & MÜLLER ADVOGADOS ASSOCIADOS',
-  cnpj: '04.344.462/0001-87',
-  endereco: 'Rua México, 21 / 1102 – Centro – Rio de Janeiro – RJ',
+  razaoSocial: 'TESOURARIA AM NOVO',
+  cnpj: '',
+  endereco: '',
 }
 
 export function InstitutionalSettingsEditor() {
@@ -62,8 +62,8 @@ export function InstitutionalSettingsEditor() {
 
   async function save() {
     if (!profile || profile.role !== 'master') return
-    if (!form.razaoSocial.trim() || !form.cnpj.trim() || !form.endereco.trim()) {
-      setMessage('Preencha todos os campos.')
+    if (!form.razaoSocial.trim()) {
+      setMessage('Informe a Razão Social.')
       return
     }
     setSaving(true)

@@ -195,7 +195,7 @@ function ExpenseModal({ record, onClose }: { record?: AnyRecord | null; onClose:
 
   return <div className="modal-backdrop" role="presentation"><section className="modal-sheet legacy-sheet expense-sheet" role="dialog" aria-modal="true">
     <div className="modal-toolbar"><div><span className="eyebrow expense-text">Tesouraria</span><h2>{editing ? 'Corrigir Demonstrativo de Despesas' : 'Demonstrativo de Despesas'}</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Fechar"><X size={20} /></button></div>
-    <div className="legacy-title-block"><strong>FLÁVIO MARQUES ADVOGADOS ASSOCIADOS</strong><span>DEMONSTRATIVO DE DESPESAS</span></div>
+    <div className="legacy-title-block"><strong>TESOURARIA AM NOVO</strong><span>DEMONSTRATIVO DE DESPESAS</span></div>
     {record?.status === 'devolvido' && <div className="return-note"><AlertTriangle size={18} /><div><strong>Devolvido para correção</strong><span>{record.approvalNote || 'A Diretoria solicitou correção deste demonstrativo.'}</span></div></div>}
 
     <div className="form-grid compact-grid">
@@ -346,7 +346,7 @@ function ReceivableModal({ onClose }: { onClose: () => void }) {
 
   return <div className="modal-backdrop"><section className="modal-sheet legacy-sheet revenue-sheet">
     <div className="modal-toolbar"><div><span className="eyebrow revenue-text">Recebimento de Alvarás</span><h2>Demonstrativo de Recebimento de Honorários</h2></div><button className="icon-button" onClick={onClose}><X size={20} /></button></div>
-    <div className="legacy-title-block revenue-title"><strong>FLÁVIO MARQUES ADVOGADOS ASSOCIADOS</strong><span>DEMONSTRATIVO DE RECEBIMENTO DE HONORÁRIOS</span></div>
+    <div className="legacy-title-block revenue-title"><strong>TESOURARIA AM NOVO</strong><span>DEMONSTRATIVO DE RECEBIMENTO DE HONORÁRIOS</span></div>
 
     <h3 className="form-section-title">Dados do Processo</h3>
     <div className="form-grid compact-grid"><label><span>Unidade</span><select value={unidade} onChange={(event) => setUnidade(event.target.value as 'RJ' | 'SP')}><option>RJ</option><option>SP</option></select></label><label><span>Data</span><input type="date" value={data} onChange={(event) => setData(event.target.value)} /></label><label><span>Natureza</span><select value={natureza} onChange={(event) => setNatureza(event.target.value)}><option>Trabalhista</option><option>Cível</option></select></label><label className="span-2"><span>Número do processo</span><input value={processo} onChange={(event) => setProcesso(event.target.value)} /></label><label className="span-2"><span>Reclamada</span><input value={reclamada} onChange={(event) => setReclamada(event.target.value)} /></label><label className="span-2"><span>Reclamante</span><input value={reclamante} onChange={(event) => setReclamante(event.target.value)} /></label><label><span>Origem</span><select value={origem} onChange={(event) => setOrigem(event.target.value)}><option>Alvará</option><option>Acordo</option></select></label><label><span>Forma de recebimento</span><input value={formaRecebimento} onChange={(event) => setFormaRecebimento(event.target.value)} /></label><label><span>Data prevista</span><input type="date" value={dataPrevista} onChange={(event) => setDataPrevista(event.target.value)} /></label></div>
