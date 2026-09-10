@@ -16,8 +16,7 @@ service cloud.firestore {
     }
 
     function isDirectorEmail() {
-      return authEmail() == 'flavio.marques@marquesemuller.adv.br'
-        || authEmail() == 'anamuller@marquesemuller.adv.br';
+      return authEmail() == 'anamuller@marquesemuller.adv.br';
     }
 
     function isManagerEmail() {
@@ -161,7 +160,8 @@ service cloud.firestore {
     }
 
     function societaryDecisionUser() {
-      return hasRole(['master', 'diretor']);
+      return (isDirectorEmail() && hasRole(['diretor']))
+        || (isPrimaryAdminEmail() && hasRole(['master']));
     }
 
     function societaryCreate(documentId) {
