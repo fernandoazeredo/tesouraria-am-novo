@@ -1,0 +1,56 @@
+name: Aplicar dados obrigatorios do cliente - AM NOVO
+
+on:
+  push:
+    branches:
+      - dev-am-2026-09-08
+    paths:
+      - scripts/apply-client-repasse-required.py
+      - .github/workflows/apply-client-repasse-required.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+        with:
+          ref: dev-am-2026-09-08
+          fetch-depth: 0
+
+      - name: Aplicar ajuste aprovado
+        run: python3 scripts/apply-client-repasse-required.py
+
+      - name: Remover arquivos temporarios e salvar alteracoes
+        run: |
+          git rm scripts/apply-client-repasse-required.py .github/workflows/apply-client-repasse-required.yml
+          git config user.name "Fernando Azeredo - automacao"
+          git config user.email "132702186+fernandoazeredo@users.noreply.github.com"
+          git add src/pages/ReceivablesPageStorageV2.tsx src/components/LaborAgreementReceivable.tsx src/pages/AlvaraControlPagesV3.tsx
+          git commit -m "[deploy-firebase] Torna obrigatorios dados do cliente para repasse"
+          git push origin HEAD:dev-am-2026-09-08
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Instalar dependencias
+        run: npm install --no-package-lock
+
+      - name: Gerar build
+        run: npm run build
+
+      - name: Autenticar no Google Cloud / Firebase
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TESOURARIA_AM_NOVO }}
+
+      - name: Instalar Firebase CLI
+        run: npm install --global firebase-tools
+
+      - name: Publicar Hosting do AM NOVO
+        run: firebase deploy --only hosting --project tesouraria-am-novo --non-interactive
