@@ -52,18 +52,18 @@ if (-not (Test-Path '.\dist\index.html')) {
   throw 'dist\index.html nao encontrado. Deploy cancelado por seguranca.'
 }
 
-Write-Host '3/3 - Publicando Firestore, Storage e Hosting no projeto Firebase isolado...' -ForegroundColor Yellow
+Write-Host '3/3 - Publicando Auth, Firestore, Storage e Hosting no projeto Firebase isolado...' -ForegroundColor Yellow
 Write-Host "Projeto fixado por parametro: $ProjectId" -ForegroundColor DarkCyan
 
-$FirebaseCommand = "firebase deploy --only firestore:rules,firestore:indexes,storage,hosting --project $ProjectId --non-interactive"
+$FirebaseCommand = "firebase deploy --only auth,firestore:rules,firestore:indexes,storage,hosting --project $ProjectId --non-interactive"
 cmd /c $FirebaseCommand
 $FirebaseExitCode = $LASTEXITCODE
 
 if ($FirebaseExitCode -ne 0) {
-  throw "Falha real no deploy Firebase (codigo $FirebaseExitCode). Leia as linhas imediatamente acima para identificar se o erro ocorreu em Firestore, Storage ou Hosting."
+  throw "Falha real no deploy Firebase (codigo $FirebaseExitCode). Leia as linhas imediatamente acima para identificar a etapa com erro."
 }
 
 Write-Host ''
 Write-Host 'DEPLOY CONCLUIDO COM SUCESSO.' -ForegroundColor Green
 Write-Host "Hosting esperado: https://$ProjectId.web.app" -ForegroundColor Green
-Write-Host 'Firestore + Storage + Hosting publicados no mesmo projeto isolado.' -ForegroundColor Green
+Write-Host 'Authentication + Firestore + Storage + Hosting publicados no mesmo projeto isolado.' -ForegroundColor Green
