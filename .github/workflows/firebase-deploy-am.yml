@@ -1,5 +1,6 @@
 name: Deploy Firebase - AM NOVO
 # Deploy controlado e isolado do projeto tesouraria-am-novo
+# Reexecucao apos ajuste de permissoes IAM
 
 on:
   push:
