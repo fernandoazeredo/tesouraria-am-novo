@@ -12,5 +12,17 @@
     "rewrites": [
       { "source": "**", "destination": "/index.html" }
     ]
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "TESOURARIA AM NOVO",
+        "supportEmail": "fernandoazeredo64@gmail.com",
+        "authorizedRedirectUris": [
+          "https://tesouraria-am-novo.web.app"
+        ]
+      }
+    }
   }
 }
