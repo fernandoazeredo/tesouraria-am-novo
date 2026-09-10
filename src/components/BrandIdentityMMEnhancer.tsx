@@ -1,28 +1,25 @@
 import { useEffect } from 'react'
 
-const NEW_LOGO = '/logo-mm.svg'
+const NEW_LOGO = '/logo-am.svg'
 
 export function BrandIdentityMMEnhancer() {
   useEffect(() => {
     function applyBrandImages() {
-      document.title = 'Controle de Despesas e Receitas | Marques & Müller Advogados Associados'
+      document.title = 'TESOURARIA AM NOVO | Controle de Despesas e Receitas'
 
       const images = Array.from(document.querySelectorAll('img')) as HTMLImageElement[]
       for (const image of images) {
         const src = image.getAttribute('src') ?? ''
-        const isBrandImage = src.includes('logo-fm') || src.includes('logo-mm') || Boolean(image.closest('.auth-brand-panel, .brand-logo-only, .mobile-header-brand'))
+        const isBrandImage = src.includes('logo-fm') || src.includes('logo-mm') || src.includes('logo-am') || Boolean(image.closest('.auth-brand-panel, .brand-logo-only, .mobile-header-brand'))
         if (!isBrandImage) continue
 
         if (src !== NEW_LOGO) image.setAttribute('src', NEW_LOGO)
-        if (image.alt !== 'Marques & Müller Advogados Associados') image.alt = 'Marques & Müller Advogados Associados'
+        if (image.alt !== 'AM') image.alt = 'AM'
       }
     }
 
     applyBrandImages()
 
-    // Observa apenas a criação/remoção de elementos. Não observa texto nem valores
-    // de inputs, evitando ciclos de MutationObserver/React que podem bloquear a
-    // navegação entre Despesas, Recebimentos e Repasse de Alvarás.
     const observer = new MutationObserver(() => {
       window.requestAnimationFrame(applyBrandImages)
     })
