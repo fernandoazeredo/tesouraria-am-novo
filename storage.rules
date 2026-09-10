@@ -16,7 +16,7 @@ service firebase.storage {
     }
 
     function isDirectorEmail() {
-      return authEmail() == 'flavio.marques@marquesemuller.adv.br';
+      return authEmail() == 'anamuller@marquesemuller.adv.br';
     }
 
     function isManagerEmail() {
