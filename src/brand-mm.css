@@ -1,8 +1,8 @@
-/* Identidade visual Marques & Müller — login, menu lateral e cabeçalho móvel */
+/* Identidade visual provisória AM — login, menu lateral e cabeçalho móvel */
 .auth-page.login-light-only .auth-brand-panel img,
 .sidebar .brand-logo-only img,
 .mobile-header-brand img {
-  content: url('/logo-mm.svg') !important;
+  content: url('/logo-am.svg') !important;
   object-fit: contain !important;
 }
 
