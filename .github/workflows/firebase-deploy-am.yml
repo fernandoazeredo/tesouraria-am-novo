@@ -4,6 +4,7 @@ name: Deploy Firebase - AM NOVO
 # Publicacao das correcoes aprovadas de identidade e textos AM
 # Publicacao da regra global de validacao visual dos campos obrigatorios
 # Republicacao dos textos aprovados de Receitas e Despesas.
+# Publicacao da nomenclatura Tesouraria — Recebimentos.
 
 on:
   push:
