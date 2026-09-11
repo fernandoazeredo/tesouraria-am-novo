@@ -2,7 +2,7 @@ name: Deploy Firebase - AM NOVO
 # Deploy controlado e isolado do projeto tesouraria-am-novo
 # Reexecucao apos ajuste de permissoes IAM
 # Publicacao das correcoes aprovadas de identidade e textos AM
-# Publicacao da validacao visual inline dos campos obrigatorios do cliente
+# Publicacao da regra global de validacao visual dos campos obrigatorios
 
 on:
   push:
