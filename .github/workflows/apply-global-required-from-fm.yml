@@ -20,13 +20,71 @@ jobs:
           ref: dev-am-2026-09-08
           fetch-depth: 0
 
-      - name: Aplicar somente as alteracoes funcionais da regra global
+      - name: Aplicar alteracoes sem sobrescrever regras proprias do AM
         shell: bash
         run: |
           git remote add fm https://github.com/fernandoazeredo/tesouraria-fm-novo.git
           git fetch fm 16a9874f87323478d1cbee08a441ca204723b6f0 ef8c3136c755ce620bc1c53610ecabd877046e6a
           git diff 16a9874f87323478d1cbee08a441ca204723b6f0 ef8c3136c755ce620bc1c53610ecabd877046e6a -- src > /tmp/global-required.patch
+          set +e
           git apply --3way --index /tmp/global-required.patch
+          set -e
+          for file in src/components/InstitutionalSettingsEditor.tsx src/pages/AgentCommissionsPageV4.tsx src/pages/AlvaraControlPagesV3.tsx; do
+            if git diff --name-only --diff-filter=U | grep -Fxq "$file"; then
+              git checkout --ours -- "$file"
+              git add "$file"
+            fi
+          done
+
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new, label):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              if new in text:
+                  return
+              if old not in text:
+                  raise SystemExit(f'{label}: trecho nao encontrado')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          # Configuracoes institucionais AM: somente Razao Social permanece obrigatoria.
+          p='src/components/InstitutionalSettingsEditor.tsx'
+          replace_once(p, "import { db } from '../lib/firebase'\n", "import { db } from '../lib/firebase'\nimport { clearRequiredFieldErrors, showRequiredFieldErrors } from '../lib/requiredFieldValidation'\n", 'settings-import')
+          replace_once(p, "    if (!form.razaoSocial.trim()) {\n      setMessage('Informe a Razão Social.')\n      return\n    }", "    if (!form.razaoSocial.trim()) { showRequiredFieldErrors('.institutional-settings-editor', ['institution-name']); return }\n    clearRequiredFieldErrors('.institutional-settings-editor')", 'settings-validation')
+          replace_once(p, '<label><span>Razão Social</span><input value={form.razaoSocial}', '<label><span>Razão Social</span><input data-required-key="institution-name" value={form.razaoSocial}', 'settings-key')
+
+          # Comissoes de agentes AM.
+          p='src/pages/AgentCommissionsPageV4.tsx'
+          replace_once(p, "import { useAuth } from '../auth/AuthContext'\n", "import { useAuth } from '../auth/AuthContext'\nimport { clearRequiredFieldErrors, showRequiredFieldErrors } from '../lib/requiredFieldValidation'\n", 'commission-import')
+          replace_once(p, "function MoneyInputBR({ value, onChange, disabled = false, ariaLabel }: { value: number; onChange: (value: number) => void; disabled?: boolean; ariaLabel?: string }) {", "function MoneyInputBR({ value, onChange, disabled = false, ariaLabel, validationKey }: { value: number; onChange: (value: number) => void; disabled?: boolean; ariaLabel?: string; validationKey?: string }) {", 'commission-money-signature')
+          replace_once(p, 'return <input type="text" inputMode="decimal" aria-label={ariaLabel} disabled={disabled}', 'return <input type="text" inputMode="decimal" aria-label={ariaLabel} data-required-key={validationKey} disabled={disabled}', 'commission-money-key')
+          replace_once(p, "    if (deductions.some((item) => item.value > 0 && (!item.description.trim() || !item.date))) { window.alert('Informe data e descrição para todas as deduções com valor.'); return }", "    const missingKeys: string[] = []\n    deductions.forEach((item, index) => { if (item.value > 0 && !item.date) missingKeys.push(`commission-deduction-date-${index}`); if (item.value > 0 && !item.description.trim()) missingKeys.push(`commission-deduction-description-${index}`) })\n    installments.forEach((item, index) => { if (item.value <= 0) missingKeys.push(`commission-installment-value-${index}`); if (!item.dueDate) missingKeys.push(`commission-installment-date-${index}`) })\n    if (missingKeys.length) { showRequiredFieldErrors('.commission-v4-modal', missingKeys); return }\n    clearRequiredFieldErrors('.commission-v4-modal')", 'commission-validation')
+          text=Path(p).read_text(encoding='utf-8')
+          text=text.replace("    if (installments.some((item) => !item.dueDate || item.value <= 0)) { window.alert('Informe valor e data de todas as parcelas.'); return }\n", '')
+          text=text.replace('<input type="date" value={item.date} disabled={!canOperate || !editable}', '<input data-required-key={`commission-deduction-date-${index}`} type="date" value={item.date} disabled={!canOperate || !editable}')
+          text=text.replace('<input value={item.description} disabled={!canOperate || !editable}', '<input data-required-key={`commission-deduction-description-${index}`} value={item.description} disabled={!canOperate || !editable}')
+          text=text.replace('<MoneyInputBR value={item.value} disabled={execution || !canOperate || !editable} onChange={(value) => patchInstallment(index, { value })} />', '<MoneyInputBR value={item.value} disabled={execution || !canOperate || !editable} validationKey={`commission-installment-value-${index}`} onChange={(value) => patchInstallment(index, { value })} />')
+          text=text.replace('<input type="date" value={item.dueDate} disabled={execution || !canOperate || !editable}', '<input data-required-key={`commission-installment-date-${index}`} type="date" value={item.dueDate} disabled={execution || !canOperate || !editable}')
+          Path(p).write_text(text, encoding='utf-8')
+
+          # Repasse de Alvaras AM: parcelas obrigatorias em destaque visual.
+          p='src/pages/AlvaraControlPagesV3.tsx'
+          replace_once(p, "import { useAuth } from '../auth/AuthContext'\n", "import { useAuth } from '../auth/AuthContext'\nimport { clearRequiredFieldErrors, showRequiredFieldErrors } from '../lib/requiredFieldValidation'\n", 'transfer-import')
+          replace_once(p, "    if (!installments.length || installments.some((item) => !item.dueDate || toNumber(item.value) <= 0)) { window.alert('Informe valor e data de todas as parcelas.'); return }", "    if (!installments.length || installments.some((item) => !item.dueDate || toNumber(item.value) <= 0)) {\n      const missingKeys: string[] = []\n      installments.forEach((item, index) => { if (toNumber(item.value) <= 0) missingKeys.push(`transfer-value-${index}`); if (!item.dueDate) missingKeys.push(`transfer-date-${index}`) })\n      if (missingKeys.length) { showRequiredFieldErrors('.obligation-modal', missingKeys); return }\n    }\n    clearRequiredFieldErrors('.obligation-modal')", 'transfer-validation')
+          text=Path(p).read_text(encoding='utf-8')
+          text=text.replace('<input type="number" min="0" step="0.01" value={item.value}', '<input data-required-key={`transfer-value-${index}`} type="number" min="0" step="0.01" value={item.value}')
+          text=text.replace('<input type="date" value={item.dueDate}', '<input data-required-key={`transfer-date-${index}`} type="date" value={item.dueDate}')
+          Path(p).write_text(text, encoding='utf-8')
+          PY
+
+          if git diff --name-only --diff-filter=U | grep -q .; then
+            echo 'Ainda existem conflitos:'
+            git diff --name-only --diff-filter=U
+            exit 1
+          fi
+          if grep -R -nE '^(<<<<<<<|=======|>>>>>>>)' src; then exit 1; fi
+          git add src
 
       - name: Instalar dependencias
         run: npm install --no-package-lock
