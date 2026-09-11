@@ -1,0 +1,45 @@
+name: Aplicar regra global de campos obrigatorios no AM
+
+on:
+  push:
+    branches:
+      - dev-am-2026-09-08
+    paths:
+      - '.github/workflows/apply-global-required-from-fm.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar AM
+        uses: actions/checkout@v4
+        with:
+          ref: dev-am-2026-09-08
+          fetch-depth: 0
+
+      - name: Aplicar somente as alteracoes funcionais da regra global
+        shell: bash
+        run: |
+          git remote add fm https://github.com/fernandoazeredo/tesouraria-fm-novo.git
+          git fetch fm 16a9874f87323478d1cbee08a441ca204723b6f0 ef8c3136c755ce620bc1c53610ecabd877046e6a
+          git diff 16a9874f87323478d1cbee08a441ca204723b6f0 ef8c3136c755ce620bc1c53610ecabd877046e6a -- src > /tmp/global-required.patch
+          git apply --3way --index /tmp/global-required.patch
+
+      - name: Instalar dependencias
+        run: npm install --no-package-lock
+
+      - name: Validar build
+        run: npm run build
+
+      - name: Remover workflow temporario e publicar
+        shell: bash
+        run: |
+          rm .github/workflows/apply-global-required-from-fm.yml
+          git config user.name "Fernando Azeredo - automacao"
+          git config user.email "132702186+fernandoazeredo@users.noreply.github.com"
+          git add src .github/workflows/apply-global-required-from-fm.yml
+          git commit -m "[deploy-firebase] Implementa regra global de campos obrigatorios no AM"
+          git push origin HEAD:dev-am-2026-09-08
