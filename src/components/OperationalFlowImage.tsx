@@ -1,8 +1,45 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+
+const PART_COUNT = 4
 
 export function OperationalFlowImage() {
-  const src = '/fluxo-operacional.webp'
+  const [src, setSrc] = useState('')
   const [open, setOpen] = useState(false)
+  const [host, setHost] = useState<HTMLElement | null>(null)
+
+  useEffect(() => {
+    let active = true
+    Promise.all(Array.from({ length: PART_COUNT }, (_, index) => fetch(`/fluxo-operacional-${index + 1}.b64`).then((response) => {
+      if (!response.ok) throw new Error('Imagem ainda não disponível')
+      return response.text()
+    })))
+      .then((parts) => {
+        if (active) setSrc(`data:image/webp;base64,${parts.join('').trim()}`)
+      })
+      .catch(() => undefined)
+    return () => { active = false }
+  }, [])
+
+  useEffect(() => {
+    const parent = document.querySelector<HTMLElement>('.main-content')
+    if (!parent) return
+    const node = document.createElement('div')
+    node.dataset.operationalFlowHost = 'true'
+    parent.appendChild(node)
+    setHost(node)
+
+    const observer = new MutationObserver(() => {
+      if (node.parentElement === parent && parent.lastElementChild !== node) parent.appendChild(node)
+    })
+    observer.observe(parent, { childList: true })
+
+    return () => {
+      observer.disconnect()
+      node.remove()
+      setHost(null)
+    }
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -18,45 +55,44 @@ export function OperationalFlowImage() {
     }
   }, [open])
 
-  return (
-    <>
-      <section className="page-card" style={{ marginTop: 24, padding: 12 }}>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Abrir Fluxo Operacional em tamanho grande"
-          style={{ display: 'block', width: '100%', padding: 0, border: 0, background: 'transparent', cursor: 'zoom-in' }}
-        >
-          <img
-            src={src}
-            alt="Fluxo Operacional do Aplicativo"
-            style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 14 }}
-          />
-        </button>
-      </section>
+  if (!src || !host) return null
 
-      {open && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Fluxo Operacional ampliado"
-          onClick={() => setOpen(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(5, 15, 30, 0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, overflow: 'auto' }}
-        >
-          <button
-            type="button"
-            onClick={(event) => { event.stopPropagation(); setOpen(false) }}
-            aria-label="Fechar imagem ampliada"
-            style={{ position: 'fixed', top: 16, right: 18, zIndex: 100000, width: 44, height: 44, borderRadius: 999, border: '1px solid rgba(255,255,255,.35)', background: 'rgba(0,0,0,.55)', color: '#fff', fontSize: 28, lineHeight: 1, cursor: 'pointer' }}
-          >×</button>
-          <img
-            src={src}
-            alt="Fluxo Operacional do Aplicativo ampliado"
-            onClick={(event) => event.stopPropagation()}
-            style={{ display: 'block', width: 'auto', maxWidth: '96vw', height: 'auto', maxHeight: '92vh', objectFit: 'contain', borderRadius: 12, background: '#fff', boxShadow: '0 24px 70px rgba(0,0,0,.45)', cursor: 'zoom-out' }}
-          />
-        </div>
-      )}
-    </>
+  const card = (
+    <section className="page-card" style={{ marginTop: 24, padding: 12 }}>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        onTouchEnd={() => setOpen(true)}
+        aria-label="Abrir Fluxo Operacional em tamanho grande"
+        style={{ display: 'block', width: '100%', padding: 0, border: 0, background: 'transparent', cursor: 'zoom-in', WebkitTapHighlightColor: 'transparent' }}
+      >
+        <img src={src} alt="Fluxo Operacional do Aplicativo" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 14 }} />
+      </button>
+    </section>
   )
+
+  const modal = open ? (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Fluxo Operacional ampliado"
+      onClick={() => setOpen(false)}
+      style={{ position: 'fixed', inset: 0, zIndex: 2147483647, background: 'rgba(5, 15, 30, 0.94)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12, overflow: 'auto', touchAction: 'pan-x pan-y pinch-zoom' }}
+    >
+      <button
+        type="button"
+        onClick={(event) => { event.stopPropagation(); setOpen(false) }}
+        aria-label="Fechar imagem ampliada"
+        style={{ position: 'fixed', top: 14, right: 14, zIndex: 2147483647, width: 48, height: 48, borderRadius: 999, border: '1px solid rgba(255,255,255,.45)', background: 'rgba(0,0,0,.72)', color: '#fff', fontSize: 30, lineHeight: 1, cursor: 'pointer' }}
+      >×</button>
+      <img
+        src={src}
+        alt="Fluxo Operacional do Aplicativo ampliado"
+        onClick={(event) => event.stopPropagation()}
+        style={{ display: 'block', width: 'auto', maxWidth: '98vw', height: 'auto', maxHeight: '94vh', objectFit: 'contain', borderRadius: 10, background: '#fff', boxShadow: '0 24px 70px rgba(0,0,0,.55)' }}
+      />
+    </div>
+  ) : null
+
+  return <>{createPortal(card, host)}{modal ? createPortal(modal, document.body) : null}</>
 }
