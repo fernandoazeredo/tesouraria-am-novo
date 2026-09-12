@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { createFlowPdfUrl } from '../lib/flowPdf'
 
 const PART_COUNT = 4
 
 export function OperationalFlowImage() {
   const [src, setSrc] = useState('')
+  const [pdfUrl, setPdfUrl] = useState('')
   const [open, setOpen] = useState(false)
   const [host, setHost] = useState<HTMLElement | null>(null)
 
@@ -20,6 +22,23 @@ export function OperationalFlowImage() {
       .catch(() => undefined)
     return () => { active = false }
   }, [])
+
+  useEffect(() => {
+    if (!src) return
+    let active = true
+    let createdUrl = ''
+    createFlowPdfUrl(src)
+      .then((url) => {
+        createdUrl = url
+        if (active) setPdfUrl(url)
+        else URL.revokeObjectURL(url)
+      })
+      .catch(() => undefined)
+    return () => {
+      active = false
+      if (createdUrl) URL.revokeObjectURL(createdUrl)
+    }
+  }, [src])
 
   useEffect(() => {
     const parent = document.querySelector<HTMLElement>('.main-content')
@@ -68,6 +87,18 @@ export function OperationalFlowImage() {
       >
         <img src={src} alt="Fluxo Operacional do Aplicativo" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 14 }} />
       </button>
+      {pdfUrl && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+          <a
+            href={pdfUrl}
+            download="Fluxo_Operacional_AM.pdf"
+            className="primary-button"
+            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            Baixar Fluxo Operacional em PDF
+          </a>
+        </div>
+      )}
     </section>
   )
 
