@@ -8,9 +8,19 @@
   },
   "hosting": {
     "public": "dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
-      { "source": "**", "destination": "/index.html" }
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "postdeploy": [
+      "gcloud storage buckets update gs://tesouraria-am-novo.firebasestorage.app --cors-file=cors-storage.json"
     ]
   },
   "auth": {
