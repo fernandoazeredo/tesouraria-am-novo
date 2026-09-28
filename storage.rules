@@ -67,16 +67,19 @@ service firebase.storage {
       allow delete: if isPrimaryAdminEmail();
     }
 
-    // Extrato consolidado mensal usado no ZIP da Contabilidade.
-    // Usa e-mails oficiais do Firebase Auth para evitar dependencia de consulta
-    // cruzada ao Firestore durante upload/download.
     match /extratos-bancarios/{allPaths=**} {
       allow read: if financialReader();
       allow create, update: if financialWriter() && validBankStatementSize();
       allow delete: if financialWriter();
     }
 
-    // Estrutura antiga mantida somente para leitura/limpeza de pacotes já existentes.
+    match /envios-contabilidade/{allPaths=**} {
+      allow read: if financialReader();
+      allow create, update: if financialWriter()
+        && request.resource.size <= 250 * 1024 * 1024;
+      allow delete: if financialWriter();
+    }
+
     match /pacotes-contabeis/{allPaths=**} {
       allow read: if financialReader();
       allow write: if isPrimaryAdminEmail();
