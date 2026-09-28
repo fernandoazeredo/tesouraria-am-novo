@@ -1,0 +1,17 @@
+[
+  {
+    "origin": [
+      "https://tesouraria-am-novo.web.app",
+      "https://tesouraria-am-novo.firebaseapp.com"
+    ],
+    "method": ["GET", "HEAD"],
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "Content-Disposition",
+      "ETag",
+      "x-goog-meta-firebasestoragedownloadtokens"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]
